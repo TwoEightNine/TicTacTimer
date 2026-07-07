@@ -1,6 +1,6 @@
 #include "GalleryScreen.h"
 #include "Navigator.h"
-#include "n_pics.h"
+// #include "n_pics.h"
 // #include "neo.h"
 
 
