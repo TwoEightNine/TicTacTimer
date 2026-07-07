@@ -1,7 +1,7 @@
 #include "GalleryScreen.h"
 #include "Navigator.h"
 // #include "n_pics.h"
-// #include "neo.h"
+#include "neo.h"
 
 
 class GalleryScreen : public Screen {
