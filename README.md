@@ -20,6 +20,21 @@ I found it interesting to implement screen-based architecture and vibe-code a lo
 
 First version was fit in a Tic Tac box. Although now it is larger than a Tic Tac box and doesn't have a body, it's still the same idea. 
 
+# Circuit
+
+![circuit image](circuit.png)
+
+Components:
+- ESP32-C3
+- LX-LBC3 changer controller
+- SSD1309 128x64 LCD display
+- buzzer
+- BC547 transistor
+- 10k resistor
+- switch
+- button
+- Li-Pol 3.7 battery
+
 # Project Architecture Reference (ESP32-C3 UI Framework)
 
 This project is an Arduino/C++ application for ESP32-C3 with an SSD1306 OLED. The UI is implemented as a collection of independent screens managed by a central navigator.
