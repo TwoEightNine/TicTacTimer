@@ -6,6 +6,8 @@ This is a workout timer I made for myself. I found it more convenient to program
 
 Its initial purpose defined its hardware: monochrome 128x64 display, one button, buzzer.
 
+<img src="photo.png" alt="Photo" width="500">
+
 ## Current features
 
  - Workout timer;
@@ -22,7 +24,7 @@ First version was fit in a Tic Tac box. Although now it is larger than a Tic Tac
 
 # Circuit
 
-![circuit image](circuit.png)
+<img src="circuit.png" alt="Circuit" width="600">
 
 Components:
 - ESP32-C3
@@ -33,7 +35,7 @@ Components:
 - 10k resistor
 - switch
 - button
-- Li-Pol 3.7 battery
+- Li-Pol 3.7V battery
 
 # Project Architecture Reference (ESP32-C3 UI Framework)
 
