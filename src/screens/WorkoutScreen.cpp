@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include "WorkoutScreen.h"
-#include "Navigator.h"
+#include "../core/Navigator.h"
 
 #define ACTIVITY_TYPE_INIT 0
 #define ACTIVITY_TYPE_WORKOUT 1

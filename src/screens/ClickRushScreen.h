@@ -1,8 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include "Screen.h"
+#include "../core/Screen.h"
 
-Screen* createFlappyBirdScreen(
+Screen* createClickRushScreen(
     Adafruit_SSD1306& display,
     ToneController& tone,
     ButtonController& button,

@@ -1,9 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "ToneController.h"
-#include "ButtonController.h"
+#include "../hal/ToneController.h"
+#include "../hal/ButtonController.h"
 
 class Navigator;
 

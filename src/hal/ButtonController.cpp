@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include "ButtonController.h"
 
 ButtonController::ButtonController(uint8_t pin, ToneController& tone)

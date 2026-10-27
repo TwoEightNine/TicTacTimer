@@ -1,7 +1,7 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include "GalleryScreen.h"
-#include "Navigator.h"
-// #include "n_pics.h"
-#include "neo.h"
+#include "../core/Navigator.h"
+#include "../assets/Animations.h"
 
 
 class GalleryScreen : public Screen {

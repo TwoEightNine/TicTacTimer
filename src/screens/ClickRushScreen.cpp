@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include "ClickRushScreen.h"
-#include "Navigator.h"
-#include "ClickRushPic.h"
+#include "../core/Navigator.h"
+#include "../assets/ClickRushPic.h"
 
 class ClickRushScreen : public Screen {
 private:

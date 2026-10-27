@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include "BuzzerToneController.h"
 
 BuzzerToneController::BuzzerToneController(uint8_t pin)

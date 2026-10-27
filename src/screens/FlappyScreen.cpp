@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include "FlappyScreen.h"
-#include "Navigator.h"
+#include "../core/Navigator.h"
 
 class FlappyBirdScreen : public Screen {
 private:

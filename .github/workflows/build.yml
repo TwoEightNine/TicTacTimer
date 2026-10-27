@@ -1,0 +1,56 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  ESP32_INDEX: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+  ESP32_CORE: esp32:esp32@3.3.8
+  FQBN: esp32:esp32:esp32c3:CDCOnBoot=cdc
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Arduino requires the sketch folder to match the .ino name.
+      - uses: actions/checkout@v4
+        with:
+          path: tic_tac_timer
+
+      - uses: arduino/setup-arduino-cli@v2
+
+      - name: Install ESP32 core and libraries
+        run: |
+          arduino-cli core update-index --additional-urls "$ESP32_INDEX"
+          arduino-cli core install "$ESP32_CORE" --additional-urls "$ESP32_INDEX"
+          arduino-cli lib install "Adafruit SSD1306@2.5.16" "Adafruit GFX Library@1.12.6"
+
+      - name: Compile
+        run: |
+          arduino-cli compile --fqbn "$FQBN" --warnings default --output-dir firmware tic_tac_timer
+          cp firmware/tic_tac_timer.ino.merged.bin firmware/tic_tac_timer.merged.bin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: |
+            firmware/tic_tac_timer.merged.bin
+            firmware/tic_tac_timer.ino.bin
+            firmware/tic_tac_timer.ino.elf
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            firmware/tic_tac_timer.merged.bin

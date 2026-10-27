@@ -1,18 +1,19 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-#include "Navigator.h"
-#include "WorkoutScreen.h"
-#include "MenuScreen.h"
-#include "SplashScreen.h"
-#include "FlappyScreen.h"
-#include "GalleryScreen.h"
-#include "ClickRushScreen.h"
-#include "ButtonController.h"
-#include "ToneController.h"
-#include "BuzzerToneController.h"
+#include "src/core/Navigator.h"
+#include "src/screens/WorkoutScreen.h"
+#include "src/screens/MenuScreen.h"
+#include "src/screens/SplashScreen.h"
+#include "src/screens/FlappyScreen.h"
+#include "src/screens/GalleryScreen.h"
+#include "src/screens/ClickRushScreen.h"
+#include "src/hal/ButtonController.h"
+#include "src/hal/ToneController.h"
+#include "src/hal/BuzzerToneController.h"
 
 #define PIN_BTN 7
 #define PIN_BUZZER 21

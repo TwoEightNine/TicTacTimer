@@ -1,353 +1,123 @@
 # Tic Tac Timer
 
+A pocket-sized interval workout timer with a beeper, a 128x64 OLED and a single button. It also has a couple of games. It runs on an ESP32-C3 from a small Li-Po battery.
+
+<img src="photo.png" alt="Tic Tac Timer board" width="500">
+
 ## What it is
 
-This is a workout timer I made for myself. I found it more convenient to program the time intervals I need and to have sound indication.
+I made this workout timer for myself. I found it more convenient to program the time intervals I need and get sound cues.
 
-Its initial purpose defined its hardware: monochrome 128x64 display, one button, buzzer.
+That purpose set the hardware: a monochrome 128x64 display, one button and a buzzer.
 
-<img src="photo.png" alt="Photo" width="500">
+Later I found it interesting to build a screen-based architecture on top of it and vibe-code more useful or fun features. One button is not as limiting as it might seem.
 
-## Current features
+### Why Tic Tac?
 
- - Workout timer;
- - Flappy bird game;
- - Click rush game.
+The first version fit in a Tic Tac box. It's now larger than a Tic Tac box and has no case, but the idea is the same.
 
-## Later improvements
+## Features
 
-I found it interesting to implement screen-based architecture and vibe-code a lot of other useful or fun functions. One button is not as limiting as it might seem.
+- **Workout timer**: a 5-second countdown, then 24 s work / 10 s rest rounds until you stop it. It beeps at the start of every work and rest period, chirps at 1/3 and 2/3 of the work period, and counts down the last seconds of rest. The screen is inverted during rest so you can tell the two apart at a glance.
+- **Flappy**: a one-button Flappy Bird–style game.
+- **Click rush**: tap fast enough to keep the bar from draining.
 
-## Why Tic Tac?
+## Controls
 
-First version was fit in a Tic Tac box. Although now it is larger than a Tic Tac box and doesn't have a body, it's still the same idea. 
+Everything is driven by one button. A press is classified when you release it:
 
-# Circuit
+| Press      | Duration    |
+|------------|-------------|
+| Short      | < 0.7 s     |
+| Long       | 0.7 – 2 s   |
+| Extra long | > 2 s       |
+
+| Screen       | Short                     | Long          |
+|--------------|---------------------------|---------------|
+| Menu         | Next item                 | Open item     |
+| Workout      | Pause / resume            | Back to menu  |
+| Flappy       | Start, flap, restart      | Back to menu  |
+| Click rush   | Start, click, retry       | Back to menu  |
+
+The workout intervals are currently set at compile time: see the `ACTIVITY_*_DURATION` constants in [src/screens/WorkoutScreen.cpp](src/screens/WorkoutScreen.cpp).
+
+## Hardware
 
 <img src="circuit.png" alt="Circuit" width="600">
 
-Components:
-- ESP32-C3
-- LX-LBC3 changer controller
-- SSD1309 128x64 LCD display
-- buzzer
-- BC547 transistor
-- 10k resistor
-- switch
-- button
-- Li-Pol 3.7V battery
+| Part | Notes |
+|------|-------|
+| ESP32-C3 board | Any board exposing the pins below |
+| 128x64 I2C OLED, SSD1306/SSD1309 | Driven with the Adafruit SSD1306 library, address `0x3C` |
+| LX-LBC3 charger / boost module | Charges the battery over USB-C and outputs 5 V |
+| 3.7 V Li-Po battery | |
+| Buzzer | Switched by the transistor from 5 V |
+| BC547 NPN transistor + 10 kΩ base resistor | Buzzer driver |
+| Tactile button | |
+| Slide switch | Power |
 
-# Project Architecture Reference (ESP32-C3 UI Framework)
+| ESP32-C3 pin | Connected to |
+|--------------|--------------|
+| GPIO 8 | OLED SDA |
+| GPIO 9 | OLED SCL |
+| GPIO 7 | Button (other leg to 3V3; uses the internal pull-down) |
+| GPIO 21 | 10 kΩ → BC547 base (buzzer) |
+| 5V | LX-LBC3 5 V output, buzzer + |
+| 3V3 | OLED VCC, button |
 
-This project is an Arduino/C++ application for ESP32-C3 with an SSD1306 OLED. The UI is implemented as a collection of independent screens managed by a central navigator.
+## Building and flashing
 
-The following conventions must be followed when generating new screens or modifying existing ones.
+### Prebuilt firmware
 
----
+Every [release](https://github.com/TwoEightNine/TicTacTimer/releases) has a `tic_tac_timer.merged.bin` file. Flash it at offset `0x0`:
 
-# Screen Base Class
-
-Every screen derives from Screen.
-```cpp
-class Screen {
-public:
-    explicit Screen(
-        Adafruit_SSD1306& display,
-        ToneController& tone,
-        ButtonController& button,
-        Navigator* navigator
-    );
-
-    virtual ~Screen() = default;
-
-    virtual void tick() = 0;
-
-protected:
-    Adafruit_SSD1306& display;
-    ToneController& tone;
-    ButtonController& button;
-    Navigator* navigator;
-};
+```bash
+esptool.py --chip esp32c3 write_flash 0x0 tic_tac_timer.merged.bin
 ```
 
-Rules:
+### From source
 
-* `tick()` is called continuously from the main loop.
-* Every screen performs all updates inside `tick()`.
-* Screens own no display object; they use the reference provided by Screen.
-* Screens should never block execution.
-* Do not use `delay()` except for tiny visual effects if absolutely unavoidable.
-* Prefer `millis()` for timing.
-* All drawing is done directly on display.
-* Every frame should end with `display.display();`
+Requirements:
 
----
+- [ESP32 Arduino core](https://github.com/espressif/arduino-esp32) by Espressif, 3.x (tested with 3.3.8)
+- Libraries: **Adafruit SSD1306** (tested 2.5.16) and **Adafruit GFX Library** (tested 1.12.6), plus their dependency Adafruit BusIO
 
-# Screen Factory Pattern
+Arduino requires the sketch folder to have the same name as the `.ino` file, so clone into `tic_tac_timer`. If you download a ZIP, rename the extracted folder.
 
-Every screen consists of exactly two files.
-
-Example:
-
-```
-MenuScreen.h
-MenuScreen.cpp
+```bash
+git clone https://github.com/TwoEightNine/TicTacTimer.git tic_tac_timer
 ```
 
-The header contains only:
-```c++
-#pragma once
+**Arduino IDE:** open `tic_tac_timer/tic_tac_timer.ino`, select the **ESP32C3 Dev Module** board, then upload. Set **USB CDC On Boot: Enabled** if you want serial logs over the board's USB port.
 
-#include "Screen.h"
+**arduino-cli:**
 
-Screen* createMenuScreen(
-    Adafruit_SSD1306& display,
-    ToneController& tone,
-    ButtonController& button,
-    Navigator* navigator
-);
+```bash
+arduino-cli core install esp32:esp32 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
 ```
 
-The cpp defines an internal class:
-
-```c++
-class MenuScreen : public Screen
-{
-    ...
-};
+```bash
+arduino-cli lib install "Adafruit SSD1306" "Adafruit GFX Library"
 ```
 
-The class is NOT declared in the header.
-
-At the end:
-
-```c++
-Screen* createMenuScreen(...)
-{
-    return new MenuScreen(...);
-}
+```bash
+arduino-cli compile --upload --port /dev/cu.usbmodem101 --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc tic_tac_timer
 ```
 
-This factory pattern is used for every screen.
+Replace the port with your own (`arduino-cli board list`).
 
----
+## Project layout
 
-# Navigator
-
-Navigator owns every screen.
-
-Responsibilities:
-
-* stores pointers to all screens
-* remembers current screen
-* calls `currentScreen->tick();` every loop
-
-Navigation happens only through
-
-```c++
-navigator->open(Navigator::MENU);
+```
+tic_tac_timer.ino   setup() and loop(): wires hardware, screens and the navigator
+src/core/           Screen base class and Navigator
+src/hal/            Button and buzzer controllers
+src/screens/        One file pair per screen (menu, workout, games, ...)
+src/assets/         Bitmap frames (raw SSD1306 buffers) + Animations.h
 ```
 
-or similar.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for how screens, navigation, input and sound fit together, and the conventions for adding a new screen.
 
-Navigator exposes an enum:
+## License
 
-```c++
-Navigator::MENU
-Navigator::SPLASH
-Navigator::GAME
-...
-```
-
-Screens never create or destroy other screens.
-
-Screens only request navigation.
-
----
-
-# ButtonController
-
-ButtonController is non-blocking.
-
-The application calls `button.tick();` every loop.
-
-Screens obtain events only by
-
-```c++
-ButtonController::Event event = button.getEvent();
-```
-
-Supported events:
-
-```c++
-NONE
-SHORT_CLICK
-LONG_CLICK
-EXTRA_LONG_CLICK
-```
-
-`getEvent()` consumes the event.
-
-Typical usage:
-
-```c++
-ButtonController::Event event = button.getEvent();
-
-if (event == ButtonController::SHORT_CLICK)
-{
-    ...
-}
-
-if (event == ButtonController::LONG_CLICK)
-{
-    ...
-}
-```
-
-Never use digitalRead() directly inside screens.
-
----
-
-# ToneController
-
-Screens never manipulate buzzers directly.
-
-Instead they call `tone.tone(Tone, Durarion);`
-
-There are two implementations:
-```c++
-BuzzerToneController
-NoopToneController
-```
-
-Both implement the same interface.
-
-Noop version ignores requests.
-
----
-
-# Display
-
-Display type: `Adafruit_SSD1306`
-
-Graphics library: `Adafruit_GFX`
-
-Typical drawing:
-```c++
-display.clearDisplay();
-
-display.setTextSize(2);
-display.setCursor(x, y);
-display.print(...);
-
-display.drawRect(...);
-display.fillRect(...);
-display.drawLine(...);
-
-display.display();
-```
-
-Coordinate system:
-
-* origin: top-left
-* width: 128
-* height: 64
-
----
-
-# UI Conventions
-
-The UI uses monochrome graphics.
-
-Avoid unnecessary screen flickering.
-
-Prefer integer arithmetic.
-
-Avoid heap allocations inside `tick()`.
-
-Avoid String where possible.
-
-Prefer `const char*` or flash strings `F("text")`
-
-Game loops should use `millis()`.
-
-Animations should be frame-independent whenever possible.
-
----
-
-# Coding Style
-
-Use:
-
-* braces on separate lines
-* explicit constructors
-* private members first
-* public methods after private members
-* static constexpr for constants
-* descriptive names
-* no macros unless required
-* no global variables
-* no lambdas unless necessary
-* avoid STL containers
-
-Example style:
-
-```c++
-class ExampleScreen : public Screen {
-private:
-
-    static constexpr int SPEED = 4;
-
-    int x = 0;
-
-public:
-
-    ExampleScreen(...);
-
-    void tick() override;
-
-private:
-
-    void update();
-    void draw();
-};
-```
-
----
-
-# Screen Input Convention
-
-Unless specified otherwise:
-
-* `SHORT_CLICK` performs the primary action.
-* `LONG_CLICK` exits to `navigator->open(Navigator::MENU);`.
-
-Games usually have three states:
-
-```c++
-WAITING
-PLAYING
-GAME_OVER
-```
-
-where
-
-* `SHORT_CLICK` starts game
-* `SHORT_CLICK` performs gameplay action
-* `SHORT_CLICK` restarts after game over
-* `LONG_CLICK` returns to menu at any time
-
----
-
-# General Goal
-
-Every screen should be:
-
-* self-contained
-* lightweight
-* non-blocking
-* deterministic
-* easy to add to Navigator
-* independent of other screens except through Navigator
-* suitable for ESP32-C3 memory and CPU constraints
-* written as production-quality Arduino C++ code
+Tic Tac Timer is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See [LICENSE](LICENSE).

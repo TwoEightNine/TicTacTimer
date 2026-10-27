@@ -1348,16 +1348,3 @@ const uint8_t neo_frames[NEO_FRAME_COUNT][ANIMATION_FRAME_SIZE] PROGMEM = {
     0x15, 0x14, 0x04, 0x00, 0x00, 0x00, 0x07, 0x00, 0x11, 0x00, 0x01, 0x3E, 0x05, 0x01, 0x45, 0x00
   }
 };
-
-struct Animation {
-  const char* name;
-  const uint8_t (*frames)[ANIMATION_FRAME_SIZE];
-  uint16_t frame_count;
-  uint16_t frame_duration_ms;
-};
-
-#define ANIMATIONS_COUNT 1
-
-const Animation animations[ANIMATIONS_COUNT] = {
-  { "neo", neo_frames, NEO_FRAME_COUNT, 60 }
-};

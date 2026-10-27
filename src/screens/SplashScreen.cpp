@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include "SplashScreen.h"
-#include "Navigator.h"
-#include "neo.h"
+#include "../core/Navigator.h"
+#include "../assets/neo.h"
 
 class SplashScreen : public Screen {
 public:
