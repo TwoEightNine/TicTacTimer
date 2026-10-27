@@ -9,6 +9,7 @@ private:
         ITEM_WORKOUT,
         ITEM_FLAPPY_BIRD,
         ITEM_CLICK_RUSH,
+        ITEM_GALLERY,
         ITEM_ABOUT,
         ITEM_COUNT
     };
@@ -19,6 +20,7 @@ private:
         "Workout",
         "Flappy",
         "Click rush",
+        "Gallery",
         "About",
     };
 
@@ -68,18 +70,16 @@ public:
                     navigator->open(Navigator::CLICK_RUSH);
                     break;
 
+                case ITEM_GALLERY:
+                    navigator->open(Navigator::GALLERY);
+                    break;
+
                 case ITEM_ABOUT:
-                    // navigator->open(Navigator::ABOUT);
+                    navigator->open(Navigator::ABOUT);
                     break;
 
                 default:
                     break;
-            }
-        }
-
-        if (event == ButtonController::EXTRA_LONG_CLICK) {
-            if (selected == ITEM_ABOUT) {
-                navigator->open(Navigator::GALLERY);
             }
         }
 

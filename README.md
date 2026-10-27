@@ -21,6 +21,8 @@ The first version fit in a Tic Tac box. It's now larger than a Tic Tac box and h
 - **Workout timer**: a 5-second countdown, then 24 s work / 10 s rest rounds until you stop it. It beeps at the start of every work and rest period, chirps at 1/3 and 2/3 of the work period, and counts down the last seconds of rest. The screen is inverted during rest so you can tell the two apart at a glance.
 - **Flappy**: a one-button Flappy Bird–style game.
 - **Click rush**: tap fast enough to keep the bar from draining.
+- **Gallery**: looping full-screen animations.
+- **About**: a link to this repository.
 
 ## Controls
 
@@ -38,6 +40,8 @@ Everything is driven by one button. A press is classified when you release it:
 | Workout      | Pause / resume            | Back to menu  |
 | Flappy       | Start, flap, restart      | Back to menu  |
 | Click rush   | Start, click, retry       | Back to menu  |
+| Gallery      | Next animation            | Back to menu  |
+| About        | —                         | Back to menu  |
 
 The workout intervals are currently set at compile time: see the `ACTIVITY_*_DURATION` constants in [src/screens/WorkoutScreen.cpp](src/screens/WorkoutScreen.cpp).
 
@@ -117,6 +121,62 @@ src/assets/         Bitmap frames (raw SSD1306 buffers) + Animations.h
 ```
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for how screens, navigation, input and sound fit together, and the conventions for adding a new screen.
+
+## Adding images to the gallery
+
+The gallery plays animations stored as full-screen frames: 128x64 pixels, 1 bit per pixel, so 1024 bytes each. A still image is just an animation with one frame. Each frame takes 1 KB of flash, and there is room for several hundred.
+
+1. **Prepare the frames** as 128x64 images. White pixels light up and black stays off. To turn a video clip into frames, you can use:
+
+   ```bash
+   ffmpeg -i clip.mp4 -vf "fps=15,scale=128:64" frame_%04d.png
+   ```
+
+2. **Convert them with [image2cpp](https://javl.github.io/image2cpp/).** Select all the frames, then set:
+   - Canvas size: `128` x `64`
+   - Canvas background color: **Black**
+   - Pick a brightness threshold or dithering mode that looks good in the preview. Use **Invert** if the image comes out negative.
+   - Code output format: **Plain bytes**
+   - Draw mode: **Vertical - 1 bit per pixel**. This matches the display's memory layout; the horizontal modes will look scrambled.
+
+   Click **Generate code**. Each frame gives you 1024 bytes.
+
+3. **Create a header** in `src/assets/`, for example `src/assets/cat.h`, and paste each frame's bytes into its own `{ }` block:
+
+   ```c++
+   #pragma once
+   #include <Arduino.h>
+
+   #define ANIMATION_FRAME_SIZE 1024
+
+   #define CAT_FRAME_COUNT 2
+   const uint8_t cat_frames[CAT_FRAME_COUNT][ANIMATION_FRAME_SIZE] PROGMEM = {
+     {
+       0x00, 0x00, ... // frame 1, 1024 bytes
+     },
+     {
+       0x00, 0x00, ... // frame 2, 1024 bytes
+     }
+   };
+   ```
+
+4. **Register it** in [src/assets/Animations.h](src/assets/Animations.h): include the header, increase `ANIMATIONS_COUNT` and add an entry. The last number is how long each frame stays on screen, in milliseconds.
+
+   ```c++
+   #include "neo.h"
+   #include "cat.h"
+
+   ...
+
+   #define ANIMATIONS_COUNT 2
+
+   const Animation animations[ANIMATIONS_COUNT] = {
+     { "neo", neo_frames, NEO_FRAME_COUNT, 60 },
+     { "cat", cat_frames, CAT_FRAME_COUNT, 100 }
+   };
+   ```
+
+5. **Build and flash.** In the gallery, a short click switches to the next animation.
 
 ## License
 

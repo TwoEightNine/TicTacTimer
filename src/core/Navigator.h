@@ -12,6 +12,7 @@ public:
         FLAPPY_BIRD,
         GALLERY,
         CLICK_RUSH,
+        ABOUT,
 
         SCREEN_COUNT
     };

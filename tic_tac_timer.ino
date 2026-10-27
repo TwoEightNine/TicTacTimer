@@ -11,6 +11,7 @@
 #include "src/screens/FlappyScreen.h"
 #include "src/screens/GalleryScreen.h"
 #include "src/screens/ClickRushScreen.h"
+#include "src/screens/AboutScreen.h"
 #include "src/hal/ButtonController.h"
 #include "src/hal/ToneController.h"
 #include "src/hal/BuzzerToneController.h"
@@ -36,6 +37,7 @@ Screen* splashScreen = createSplashScreen(display, buzzer, button, &navigator);
 Screen* flappyScreen = createFlappyBirdScreen(display, buzzer, button, &navigator);
 Screen* galleryScreen = createGalleryScreen(display, buzzer, button, &navigator);
 Screen* clickRushScreen = createClickRushScreen(display, buzzer, button, &navigator);
+Screen* aboutScreen = createAboutScreen(display, buzzer, button, &navigator);
 
 void setup() {
   Serial.begin(115200);
@@ -60,6 +62,7 @@ void setup() {
   navigator.registerScreen(Navigator::FLAPPY_BIRD, flappyScreen);
   navigator.registerScreen(Navigator::GALLERY, galleryScreen);
   navigator.registerScreen(Navigator::CLICK_RUSH, clickRushScreen);
+  navigator.registerScreen(Navigator::ABOUT, aboutScreen);
 }
 
 void loop() {
